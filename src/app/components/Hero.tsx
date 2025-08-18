@@ -41,10 +41,10 @@ export default function Hero() {
 
   const LINKS = {
     resume: "/Saifali_Kalkeri_Resume.pdf",
-    email: "mailto:saifalikalkeri27@gmail.com",
-    github: "https://github.com/<your-username>",
-    linkedin: "https://www.linkedin.com/in/<your-handle>/",
-    twitter: "https://x.com/<your-handle>",
+    email: "mailto:kalkerisaif@gmail.com",
+    github: "https://github.com/Saifk05",
+    linkedin: "https://www.linkedin.com/in/Saif-Kalkeri/",
+
   };
 
   return (
@@ -145,12 +145,6 @@ export default function Hero() {
             <a href={LINKS.linkedin} aria-label="LinkedIn" className="icon-link">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M4.98 3.5A2.49 2.49 0 1 1 0 3.5 2.49 2.49 0 0 1 4.98 3.5zM.5 8h4v15h-4zM8 8h3.8v2.05h.05C12.38 9.1 13.69 8.05 15.63 8.05 20.1 8.05 23 10.28 23 14.72V23h-4v-7.07c0-1.69-.03-3.86-2.35-3.86-2.35 0-2.71 1.83-2.71 3.73V23H8z" />
-              </svg>
-            </a>
-
-            <a href={LINKS.twitter} aria-label="X" className="icon-link">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M20.07 3H23l-6.92 7.92L24 21h-6.58l-5.14-6.16L6.4 21H3.47l7.41-8.48L.8 3h6.75l4.65 5.52L20.07 3Zm-2.3 16h1.7L7.3 5h-1.8l12.26 14Z" />
               </svg>
             </a>
 
