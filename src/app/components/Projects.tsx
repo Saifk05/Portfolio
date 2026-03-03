@@ -1,62 +1,88 @@
-// app/components/Projects.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-type Card = { title: string; desc: string; href: string; img?: string; alt?: string };
+type Project = {
+  title: string;
+  short: string;
+  stack: string;
+  image: string;
+  details: string[];
+  impact: string[];
+};
 
-const projects: Card[] = [
+const projects: Project[] = [
   {
-    title: "Role-Based Ops Dashboard (Live Tracking & ETA)",
-    desc:
-      "Multi-role dashboard with Firebase Auth/Firestore, live agent GPS (5–10s), OpenRouteService routing/ETAs, time-slot filters, and color-coded markers (~30% efficiency lift).",
-    href: "https://team-tasks-seven.vercel.app/",
-    img: "/ops.jpg", // put ops.jpg in /public
-    alt: "Ops dashboard with live driver map and ETAs",
+    title: "Task & Expense Management System",
+    short:
+      "Scalable full-stack system supporting 8000+ users for task scheduling and expense tracking.",
+    stack: "React Native • Node.js • Prisma • PostgreSQL",
+    image: "/task.jpg",
+    details: [
+      "Designed a modular monolithic backend with RESTful APIs and an optimized relational schema (10+ models).",
+      "Implemented JWT authentication with refresh token rotation and secure user-level isolation.",
+      "Built hierarchical task categorization, budget tracking, and notification pipelines.",
+      "Optimized query performance and indexing for high concurrency usage.",
+    ],
+    impact: [
+      "8000+ active users supported",
+      "Secure multi-tenant architecture",
+      "Optimized DB schema (10+ relational models)",
+    ],
   },
   {
-    title: "DDoS Mitigation Dashboard",
-    desc:
-      "Trained an ML model on network-flow data and run real-time inference to classify Normal vs DDoS. Dashboard displays outputs (pie/bar/line) and includes an actionable mitigation table (blackhole/blocklist).",
-    href: "https://ml-web-frontend.vercel.app/",
-    img: "/ddos.jpg", // put ddos.jpg in /public
-    alt: "DDoS dashboard showing charts and mitigation table",
+    title: "Geo-Aware E-Commerce Platform",
+    short:
+      "Zone-based scalable e-commerce platform supporting 5000+ users with dynamic stock validation.",
+    stack: "Angular • Ionic • Node.js • MongoDB",
+    image: "/geo.jpg",
+    details: [
+      "Architected zone-level serviceability logic with real-time product validation.",
+      "Implemented inventory orchestration workflows across multiple serviceable regions.",
+      "Designed cart-level validation and recommendation engine.",
+      "Built scalable backend APIs for high availability.",
+    ],
+    impact: [
+      "5000+ users supported",
+      "Real-time stock validation engine",
+      "Zone-based inventory orchestration",
+    ],
   },
   {
-    title: "Laundry Analytics Dashboard (Live)",
-    desc:
-      "KPI dashboard for orders, revenue, gross profit, AOV; day/week/month/year rollups, date-range filters, service-level analytics, and monthly new vs repeat classification.",
-    href: "https://laundry-dashboard-rose.vercel.app/",
-    img: "/laundry.jpg", // put laundry.jpg in /public
-    alt: "Laundry analytics charts and KPIs",
+    title: "DDoS Detection & Mitigation Dashboard",
+    short:
+      "ML-powered dashboard for real-time DDoS detection with mitigation workflow.",
+    stack: "Python • ML • React • Node.js",
+    image: "/ddos.jpg",
+    details: [
+      "Trained ML model on network flow datasets for traffic classification.",
+      "Integrated real-time inference pipeline to detect Normal vs DDoS traffic.",
+      "Built mitigation dashboard with blocklist and blackhole routing actions.",
+      "Visualized traffic insights with dynamic charts and monitoring panels.",
+    ],
+    impact: [
+      "Real-time anomaly detection",
+      "Actionable mitigation workflows",
+      "Improved network visibility",
+    ],
   },
 ];
 
 export default function Projects() {
   const rootRef = useRef<HTMLElement | null>(null);
+  const [active, setActive] = useState<Project | null>(null);
 
-  // same fade-in behavior as Contact.tsx
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
 
-    const prefersReduced =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const els = Array.from(root.querySelectorAll<HTMLElement>(".io-fade"));
-    if (!els.length) return;
-
-    if (prefersReduced) {
-      els.forEach((el) => el.classList.add("show"));
-      return;
-    }
-
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            (e.target as HTMLElement).classList.add("show");
+            e.target.classList.add("show");
             io.unobserve(e.target);
           }
         });
@@ -72,75 +98,76 @@ export default function Projects() {
     <section
       ref={rootRef}
       id="projects"
-      className="relative isolate py-20 md:py-28 scroll-mt-24 bg-gradient-to-b from-black via-[#0a0a0a] to-black"
+      className="py-20 md:py-28 bg-black scroll-mt-24"
     >
-      {/* subtle grid background */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.5) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      <div className="container mx-auto max-w-6xl px-4">
-        <h2 className="io-fade text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 via-white to-green-300 bg-clip-text text-transparent">
+      <div className="max-w-6xl mx-auto px-5">
+        <h2 className="text-3xl md:text-4xl font-semibold text-white">
           Projects
         </h2>
-        <p
-          className="io-fade mt-3 text-sm text-white/70"
-          style={{ transitionDelay: "80ms" }}
-        >
-          A selection of recent work — blending code, design, and operations.
-        </p>
 
-        <div
-          className="io-fade mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
-          style={{ transitionDelay: "140ms" }}
-        >
-          {projects.map((p, i) => (
-            <a
+        <div className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((p) => (
+            <button
               key={p.title}
-              href={p.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${p.title} — open project`}
-              className="io-fade group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm 
-                         ring-1 ring-white/10 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.6)]
-                         p-6 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/60"
-              style={{ transitionDelay: `${220 + i * 90}ms` }} // stagger cards
+              onClick={() => setActive(p)}
+              className="text-left rounded-xl border border-white/10 bg-white/5 p-5 hover:border-green-400/40 transition"
             >
-              <div className="relative aspect-video overflow-hidden rounded-lg mb-4 bg-black/20">
-                {p.img ? (
-                  <>
-                    <Image
-                      src={p.img}
-                      alt={p.alt ?? p.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      priority={i === 0}
-                    />
-                    {/* subtle gradient for text legibility if you add labels later */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                  </>
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-white/40">
-                    <span className="text-xs">Project screenshot</span>
-                  </div>
-                )}
+              <div className="relative aspect-video mb-4 rounded-lg overflow-hidden bg-black/30">
+                <Image
+                  src={p.image}
+                  alt={p.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
-              <h3 className="text-lg font-semibold text-white group-hover:text-cyan-300 transition-colors">
+              <h3 className="text-lg font-semibold text-white">
                 {p.title}
               </h3>
-              <p className="mt-2 text-sm text-white/70">{p.desc}</p>
-            </a>
+              <p className="mt-2 text-sm text-white/70">
+                {p.short}
+              </p>
+              <p className="mt-2 text-xs text-green-400">{p.stack}</p>
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Modal */}
+      {active && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur">
+          <div className="max-w-3xl w-full mx-4 bg-[#0f0f0f] border border-white/10 rounded-2xl p-8 relative">
+            <button
+              onClick={() => setActive(null)}
+              className="absolute top-4 right-4 text-white/60 hover:text-white"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-2xl font-semibold text-white">
+              {active.title}
+            </h3>
+            <p className="mt-2 text-sm text-green-400">{active.stack}</p>
+
+            <ul className="mt-6 space-y-3 text-white/80 text-sm list-disc pl-5">
+              {active.details.map((d) => (
+                <li key={d}>{d}</li>
+              ))}
+            </ul>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              {active.impact.map((i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-xs rounded-full bg-green-500/15 text-green-400"
+                >
+                  {i}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
