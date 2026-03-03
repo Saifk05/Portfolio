@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 const LINKS = [
@@ -10,7 +8,6 @@ const LINKS = [
   { href: "#skills", label: "Skills" },
   { href: "#experience", label: "Experience" },
   { href: "#projects", label: "Projects" },
-  { href: "#certifications", label: "Certifications" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -21,17 +18,20 @@ export default function Navbar() {
 
   const sectionIds = useMemo(() => LINKS.map((l) => l.href.slice(1)), []);
 
+  /* Detect scroll */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Active section detection */
   useEffect(() => {
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[];
+
     if (!sections.length) return;
 
     const io = new IntersectionObserver(
@@ -39,156 +39,121 @@ export default function Navbar() {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target?.id) setActive("#" + visible.target.id);
+
+        if (visible?.target?.id) {
+          setActive("#" + visible.target.id);
+        }
       },
-      { rootMargin: "0px 0px -40% 0px", threshold: [0.2, 0.4, 0.6, 0.8, 1] }
+      { rootMargin: "0px 0px -40% 0px", threshold: 0.3 }
     );
 
     sections.forEach((s) => io.observe(s));
     return () => io.disconnect();
   }, [sectionIds]);
 
+  /* Prevent background scroll when mobile menu open */
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto";
+  }, [open]);
+
   const close = () => setOpen(false);
 
-  // Hard refresh when brand is clicked
-  const handleBrandClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
-    e.preventDefault();
-    // Go to root and force a full reload (not just client-side nav)
-    window.location.href = "/";
-  };
-
   return (
-    <>
-      <a
-        href="#hero"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-black focus:text-white focus:px-3 focus:py-2"
-      >
-        Skip to content
-      </a>
+    <header
+      className={[
+        "fixed top-0 left-0 w-full z-50 transition-all duration-300",
+        scrolled
+          ? "backdrop-blur bg-black/70 border-b border-white/10"
+          : "bg-transparent",
+      ].join(" ")}
+    >
+      <nav className="max-w-6xl mx-auto flex h-16 items-center justify-between px-5 text-white">
+        {/* Brand */}
+        <a href="#hero" className="text-lg font-semibold tracking-tight">
+          Saif
+        </a>
 
-      <header
-        className={[
-          "sticky top-0 z-50 w-full transition-all duration-200",
-          scrolled
-            ? "backdrop-blur supports-[backdrop-filter]:bg-black/60 bg-black/70 border-b border-white/10 shadow-[0_6px_24px_-12px_rgba(0,0,0,0.6)]"
-            : "bg-transparent",
-        ].join(" ")}
-      >
-        <nav className="container mx-auto h-16 px-4 flex items-center justify-between text-white">
-          {/* Brand (logo + name). Full reload on click */}
-          <Link
-            href="/"
-            onClick={handleBrandClick}
-            className="group flex items-center gap-2 font-semibold tracking-tight"
-            aria-label="Saif — go to home"
-          >
-            {/* Replace /logo.svg with your file. PNG works too. */}
-            <span className="relative inline-flex">
-              <Image
-                src="/logo.png"
-                alt=""
-                width={22}
-                height={22}
-                className="h-[18px] w-[18px]"
-                priority
-              />
-              {/* soft green glow behind the logo */}
-              <span className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-green-400/70 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
-            </span>
-            <span>Saif</span>
-          </Link>
-
-          {/* Desktop links */}
-          <ul className="hidden md:flex items-center gap-1 text-sm">
-            {LINKS.map((l) => {
-              const isActive = active === l.href;
-              return (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    onClick={close}
-                    aria-current={isActive ? "page" : undefined}
-                    className={[
-                      "relative mx-2 inline-flex items-center rounded-full px-3 py-1.5 text-neutral-200/90 transition",
-                      "hover:text-white",
-                    ].join(" ")}
-                  >
-                    {l.label}
-                    <span
-                      className={[
-                        "absolute inset-x-2 -bottom-0.5 h-[2px] rounded-full bg-white/70 transition-opacity",
-                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-60",
-                      ].join(" ")}
-                    />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Desktop CTA */}
-          <a
-            href="#contact"
-            className="hidden md:inline-flex relative items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-black"
-          >
-            <span className="absolute inset-0 rounded-full bg-green-500 opacity-80 blur-md" />
-            <span className="relative rounded-full bg-gradient-to-b from-green-400 to-green-600 px-4 py-2 shadow-lg shadow-green-500/40">
-              Contact
-            </span>
-          </a>
-
-          {/* Mobile toggle */}
-          <button
-            type="button"
-            className="md:hidden inline-flex items-center justify-center rounded-md border border-white/15 px-3 py-2 text-sm text-white/90 hover:bg-white/10"
-            aria-label="Toggle menu"
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? "Close" : "Menu"}
-          </button>
-        </nav>
-
-        {/* Mobile drawer */}
-        {open && (
-          <div className="md:hidden border-t border-white/10 bg-black/90 text-white backdrop-blur">
-            <ul className="container mx-auto grid gap-1 px-4 py-3">
-              {LINKS.map((l) => {
-                const isActive = active === l.href;
-                return (
-                  <li key={l.href}>
-                    <a
-                      href={l.href}
-                      onClick={close}
-                      aria-current={isActive ? "page" : undefined}
-                      className={[
-                        "block rounded-lg px-3 py-2 text-sm",
-                        isActive
-                          ? "bg-white/10 text-white"
-                          : "text-neutral-200 hover:bg-white/5",
-                      ].join(" ")}
-                    >
-                      {l.label}
-                    </a>
-                  </li>
-                );
-              })}
-              <li className="pt-1">
+        {/* Desktop Links */}
+        <ul className="hidden md:flex items-center gap-8 text-sm">
+          {LINKS.map((l) => {
+            const isActive = active === l.href;
+            return (
+              <li key={l.href}>
                 <a
-                  href="#contact"
+                  href={l.href}
                   onClick={close}
-                  className="relative block rounded-lg px-3 py-2 text-center text-sm font-medium text-black"
+                  className={`relative transition ${
+                    isActive
+                      ? "text-white"
+                      : "text-white/70 hover:text-white"
+                  }`}
                 >
-                  <span className="absolute inset-0 rounded-lg bg-green-500 opacity-80 blur-md" />
-                  <span className="relative rounded-lg bg-gradient-to-b from-green-400 to-green-600 px-3 py-2 shadow-lg shadow-green-500/40">
-                    Contact
-                  </span>
+                  {l.label}
+                  <span
+                    className={`absolute left-0 -bottom-1 h-[2px] w-full bg-green-400 transition-opacity duration-300 ${
+                      isActive ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
                 </a>
               </li>
-            </ul>
-          </div>
-        )}
-      </header>
-    </>
+            );
+          })}
+        </ul>
+
+        {/* Desktop CTA */}
+        <a
+          href="#contact"
+          className="hidden md:inline-flex items-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition"
+        >
+          Contact
+        </a>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden text-sm border border-white/20 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 transition"
+        >
+          {open ? "Close" : "Menu"}
+        </button>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div
+        className={`md:hidden fixed top-16 left-0 w-full bg-black/95 backdrop-blur border-t border-white/10 transform transition-all duration-300 ${
+          open
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-2 pointer-events-none"
+        }`}
+      >
+        <ul className="flex flex-col gap-2 px-6 py-6 text-white/80">
+          {LINKS.map((l) => {
+            const isActive = active === l.href;
+            return (
+              <li key={l.href}>
+                <a
+                  href={l.href}
+                  onClick={close}
+                  className={`block rounded-md px-3 py-2 transition ${
+                    isActive
+                      ? "bg-white/10 text-white"
+                      : "hover:bg-white/5"
+                  }`}
+                >
+                  {l.label}
+                </a>
+              </li>
+            );
+          })}
+
+          <a
+            href="#contact"
+            onClick={close}
+            className="mt-4 block rounded-md border border-white/15 px-3 py-2 text-center hover:bg-white/10 transition"
+          >
+            Contact
+          </a>
+        </ul>
+      </div>
+    </header>
   );
 }
